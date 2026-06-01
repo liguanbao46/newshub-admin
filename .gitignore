@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Database files (contains real data)
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+
+# Logs
+*.log
+out.log
+err.log
+server-output.log
+server-error.log
+
+# Environment & secrets
+.env
+.env.*
+
+# WorkBuddy project metadata
+.workbuddy/
+
+# OS files
+.DS_Store
+Thumbs.db

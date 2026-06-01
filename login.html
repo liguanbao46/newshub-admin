@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NewsHub — 管理员登录</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-root: #f5f4f0;
+  --bg-card: #fefdfb;
+  --bg-input: #f8f7f4;
+  --bg-hover: #f0eeea;
+  --text-primary: #2d2b28;
+  --text-secondary: #6b6560;
+  --text-tertiary: #9c938a;
+  --border-default: #e8e4de;
+  --accent: #c7512e;
+  --accent-hover: #b34726;
+  --accent-light: #fdf0eb;
+  --danger: #c7453a;
+  --success: #3d8c5c;
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.04);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+}
+
+html { font-size: 15px; height: 100%; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-root);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(199,81,46,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(91,127,168,0.03) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 80%, rgba(61,140,92,0.03) 0%, transparent 50%);
+}
+
+/* Login Container */
+.login-wrapper {
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-brand {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-brand-icon {
+  width: 48px; height: 48px;
+  margin: 0 auto 14px;
+  border-radius: 12px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+}
+
+.login-brand h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.login-brand p {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+}
+
+/* Card */
+.login-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 36px 32px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-default);
+}
+
+/* Form */
+.form-group { margin-bottom: 20px; }
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: all var(--transition);
+  outline: none;
+}
+
+.form-input::placeholder { color: var(--text-tertiary); }
+
+.form-input:focus {
+  border-color: var(--accent);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(199,81,46,0.08);
+}
+
+.form-input.error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(199,69,58,0.08);
+}
+
+/* Captcha */
+.captcha-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.captcha-row .form-input {
+  flex: 1;
+}
+
+.captcha-display {
+  height: 42px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  border: 1.5px solid var(--border-default);
+  transition: border-color var(--transition);
+}
+
+.captcha-display:hover { border-color: var(--accent); }
+
+.captcha-display svg, .captcha-display img {
+  display: block;
+  width: 120px;
+  height: 42px;
+}
+
+.captcha-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+  margin-top: 5px;
+  user-select: none;
+  transition: opacity var(--transition);
+}
+
+.captcha-refresh:hover { opacity: 0.75; }
+
+.captcha-refresh svg { width: 12px; height: 12px; }
+
+/* Error message */
+.error-msg {
+  background: #fdf0ef;
+  color: var(--danger);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  margin-bottom: 20px;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(199,69,58,0.15);
+}
+
+.error-msg.show { display: flex; }
+
+.error-msg svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* Button */
+.btn-login {
+  width: 100%;
+  height: 44px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+
+.btn-login:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(199,81,46,0.25); }
+
+.btn-login:active { transform: translateY(0); }
+
+.btn-login:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-login .spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: none;
+}
+
+.btn-login.loading .spinner { display: block; }
+.btn-login.loading .btn-text { display: none; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Footer */
+.login-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+/* Loading overlay */
+.loading-overlay {
+  position: fixed; inset: 0;
+  background: var(--bg-root);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+
+.loading-overlay.hide { display: none; }
+
+.loading-dot {
+  width: 10px; height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+</style>
+</head>
+<body>
+
+<!-- Loading overlay (check existing session) -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-dot"></div>
+</div>
+
+<!-- Login -->
+<div class="login-wrapper">
+  <div class="login-brand">
+    <div class="login-brand-icon">N</div>
+    <h1>NewsHub Admin</h1>
+    <p>新闻平台后台管理系统</p>
+  </div>
+
+  <div class="login-card">
+    <!-- Error -->
+    <div class="error-msg" id="errorMsg">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="errorText"></span>
+    </div>
+
+    <!-- Username -->
+    <div class="form-group">
+      <label class="form-label">用户名</label>
+      <input type="text" class="form-input" id="username" placeholder="请输入管理员账号" autocomplete="username" maxlength="30">
+    </div>
+
+    <!-- Password -->
+    <div class="form-group">
+      <label class="form-label">密码</label>
+      <input type="password" class="form-input" id="password" placeholder="请输入管理员密码" autocomplete="current-password" maxlength="30">
+    </div>
+
+    <!-- Captcha -->
+    <div class="form-group">
+      <label class="form-label">验证码</label>
+      <div class="captcha-row">
+        <input type="text" class="form-input" id="captchaInput" placeholder="请输入右侧验证码" maxlength="4" autocomplete="off">
+        <div class="captcha-display" id="captchaDisplay" title="点击刷新验证码">
+          <img id="captchaImg" src="" alt="验证码" width="120" height="42">
+        </div>
+      </div>
+      <span class="captcha-refresh" id="captchaRefresh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        换一张
+      </span>
+    </div>
+
+    <!-- Login Button -->
+    <button class="btn-login" id="btnLogin" type="button">
+      <span class="btn-text">登 录</span>
+      <div class="spinner"></div>
+    </button>
+  </div>
+
+  <div class="login-footer">NewsHub Admin &copy; 2026 — 仅限授权管理员使用</div>
+</div>
+
+<script>
+// ============ DOM refs ============
+const $username = document.getElementById('username');
+const $password = document.getElementById('password');
+const $captchaInput = document.getElementById('captchaInput');
+const $captchaDisplay = document.getElementById('captchaDisplay');
+const $captchaImg = document.getElementById('captchaImg');
+const $captchaRefresh = document.getElementById('captchaRefresh');
+const $btnLogin = document.getElementById('btnLogin');
+const $errorMsg = document.getElementById('errorMsg');
+const $errorText = document.getElementById('errorText');
+const $loadingOverlay = document.getElementById('loadingOverlay');
+
+let _captchaId = null;
+
+// ============ Helpers ============
+function showError(msg) {
+  $errorText.textContent = msg;
+  $errorMsg.classList.add('show');
+}
+
+function hideError() {
+  $errorMsg.classList.remove('show');
+}
+
+function setLoading(v) {
+  if (v) {
+    $btnLogin.classList.add('loading');
+    $btnLogin.disabled = true;
+  } else {
+    $btnLogin.classList.remove('loading');
+    $btnLogin.disabled = false;
+  }
+}
+
+// ============ Captcha ============
+function svgToDataUrl(svgString) {
+  // Encode SVG string to base64 (handles # in colors, special chars safely)
+  const bytes = new TextEncoder().encode(svgString);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return 'data:image/svg+xml;base64,' + btoa(binary);
+}
+
+async function fetchCaptcha() {
+  try {
+    // Show loading state
+    $captchaImg.src = '';
+    $captchaImg.alt = '加载中...';
+    hideError();
+
+    const res = await fetch('/api/auth/captcha');
+    if (!res.ok) throw new Error('服务器响应异常 (' + res.status + ')');
+
+    const json = await res.json();
+    if (!json.success) throw new Error(json.message || '获取验证码失败');
+
+    _captchaId = json.data.captchaId;
+
+    // Use base64 Data URL — safe for all SVG content including #color values
+    $captchaImg.src = svgToDataUrl(json.data.svg);
+    $captchaImg.alt = '验证码';
+
+    $captchaInput.value = '';
+  } catch (e) {
+    console.error('[Captcha] Load failed:', e);
+    $captchaImg.src = '';
+    $captchaImg.alt = '加载失败，点击重试';
+    showError('验证码加载失败：' + (e.message || '网络错误'));
+  }
+}
+
+$captchaDisplay.addEventListener('click', fetchCaptcha);
+$captchaRefresh.addEventListener('click', fetchCaptcha);
+
+// ============ Login ============
+async function doLogin() {
+  hideError();
+  const username = $username.value.trim();
+  const password = $password.value;
+  const captchaAnswer = $captchaInput.value.trim();
+
+  if (!username) { showError('请输入用户名'); $username.focus(); return; }
+  if (!password) { showError('请输入密码'); $password.focus(); return; }
+  if (!captchaAnswer || captchaAnswer.length !== 4) { showError('请输入4位验证码'); $captchaInput.focus(); return; }
+  if (!_captchaId) { showError('验证码未加载，请刷新后重试'); return; }
+
+  setLoading(true);
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password, captchaId: _captchaId, captchaAnswer })
+    });
+    const json = await res.json();
+    if (!json.success) {
+      await fetchCaptcha(); // refresh captcha on failure
+      throw new Error(json.message);
+    }
+    // Success — redirect
+    window.location.href = '/admin-dashboard.html';
+  } catch (e) {
+    showError(e.message || '登录失败，请重试');
+    setLoading(false);
+  }
+}
+
+// Enter key to submit
+$captchaInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
+$password.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') $captchaInput.focus();
+});
+$username.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') $password.focus();
+});
+$btnLogin.addEventListener('click', doLogin);
+
+// ============ Check existing session ============
+async function checkSession() {
+  try {
+    const res = await fetch('/api/auth/check');
+    const json = await res.json();
+    if (json.success) {
+      // Already logged in — redirect to dashboard
+      window.location.href = '/admin-dashboard.html';
+      return;
+    }
+  } catch (_) { /* not logged in, stay */ }
+  $loadingOverlay.classList.add('hide');
+}
+
+// ============ Init ============
+// Warn if accessed via file:// instead of http://localhost:3460
+if (window.location.protocol === 'file:') {
+  document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100dvh;font-family:system-ui,sans-serif;color:#2d2b28;background:#f5f4f0;text-align:center;padding:20px;"><div><h2 style="color:#c7512e;margin-bottom:12px;">访问方式错误</h2><p style="color:#6b6560;">请通过以下地址访问登录页面：</p><p style="font-size:18px;font-weight:600;color:#c7512e;margin:16px 0;">http://localhost:3460/login.html</p><p style="font-size:13px;color:#9c938a;">不要直接双击打开 HTML 文件</p></div></div>';
+} else {
+  fetchCaptcha();
+  checkSession();
+}
+</script>
+</body>
+</html>
