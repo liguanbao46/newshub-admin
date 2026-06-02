@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NewsHub — 新闻资讯</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-heading: 'Outfit', system-ui, sans-serif;
+      --font-body: 'Noto Sans SC', sans-serif;
+      --color-accent: #c7512e;
+      --color-accent-hover: #a84324;
+      --color-accent-light: #fdf0eb;
+      --color-bg: #f8f7f4;
+      --color-surface: #ffffff;
+      --color-border: #e8e5df;
+      --color-text: #2c2c2c;
+      --color-text-secondary: #6b6b6b;
+      --color-text-muted: #9b9b9b;
+      --color-overlay: rgba(0,0,0,0.04);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.08);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --transition: 200ms ease;
+    }
+
+    [data-theme="dark"] {
+      --color-bg: #1a1a1a;
+      --color-surface: #242424;
+      --color-border: #333333;
+      --color-text: #e4e4e4;
+      --color-text-secondary: #a0a0a0;
+      --color-text-muted: #707070;
+      --color-overlay: rgba(255,255,255,0.03);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.4);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Top Navbar ─── */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .navbar-inner {
+      max-width: 1340px; margin: 0 auto;
+      padding: 0 24px; height: 60px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    .navbar-logo {
+      font-family: var(--font-heading);
+      font-size: 1.35rem; font-weight: 700;
+      color: var(--color-text); text-decoration: none;
+      display: flex; align-items: center; gap: 8px;
+      white-space: nowrap;
+    }
+    .navbar-logo .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--color-accent);
+    }
+    .navbar-search {
+      flex: 1; max-width: 420px; position: relative;
+    }
+    .navbar-search input {
+      width: 100%; height: 38px;
+      padding: 0 16px 0 42px;
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+      background: var(--color-bg);
+      font-family: var(--font-body); font-size: 0.875rem;
+      color: var(--color-text);
+      outline: none; transition: var(--transition);
+    }
+    .navbar-search input:focus { border-color: var(--color-accent); background: var(--color-surface); }
+    .navbar-search .search-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--color-text-muted); font-size: 0.9rem; pointer-events: none;
+    }
+    .navbar-actions { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+    .theme-toggle {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      color: var(--color-text-secondary);
+      cursor: pointer; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--transition);
+    }
+    .theme-toggle:hover { border-color: var(--color-accent); color: var(--color-accent); }
+    .btn-login {
+      font-family: var(--font-body); font-size: 0.85rem; font-weight: 500;
+      padding: 8px 20px; border-radius: 20px;
+      background: var(--color-accent); color: #fff; border: none;
+      cursor: pointer; text-decoration: none;
+      transition: var(--transition); white-space: nowrap;
+    }
+    .btn-login:hover { background: var(--color-accent-hover); }
+
+    /* ─── Hero Carousel ─── */
+    .hero { max-width: 1340px; margin: 24px auto 0; padding: 0 24px; }
+    .carousel {
+      position: relative; overflow: hidden;
+      border-radius: var(--radius-lg);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      height: 420px;
+    }
+    .carousel-track {
+      display: flex; height: 100%;
+      transition: transform 600ms cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    .carousel-slide {
+      min-width: 100%; height: 100%; position: relative;
+      display: flex; align-items: flex-end;
+    }
+    .carousel-slide .slide-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      filter: brightness(0.55);
+    }
+    .carousel-slide .slide-content {
+      position: relative; z-index: 2;
+      padding: 48px 56px; max-width: 640px;
+    }
+    .carousel-slide .slide-category {
+      display: inline-block; padding: 4px 14px;
+      background: var(--color-accent); color: #fff;
+      border-radius: 20px; font-size: 0.75rem; font-weight: 500;
+      margin-bottom: 16px;
+    }
+    .carousel-slide .slide-title {
+      font-family: var(--font-heading); font-size: 2rem;
+      font-weight: 700; color: #fff; line-height: 1.25;
+      margin-bottom: 12px;
+    }
+    .carousel-slide .slide-meta {
+      font-size: 0.85rem; color: rgba(255,255,255,0.75);
+      display: flex; gap: 16px; align-items: center;
+    }
+    .carousel-indicators {
+      position: absolute; bottom: 20px; right: 56px;
+      display: flex; gap: 8px; z-index: 3;
+    }
+    .carousel-indicators button {
+      width: 8px; height: 8px; border-radius: 50%;
+      border: none; background: rgba(255,255,255,0.4);
+      cursor: pointer; transition: var(--transition);
+    }
+    .carousel-indicators button.active { background: #fff; transform: scale(1.3); }
+    .carousel-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      z-index: 3; width: 44px; height: 44px; border-radius: 50%;
+      border: none; background: rgba(255,255,255,0.15);
+      color: #fff; font-size: 1.1rem; cursor: pointer;
+      backdrop-filter: blur(8px); transition: var(--transition);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+    }
+    .carousel:hover .carousel-arrow { opacity: 1; }
+    .carousel-arrow.prev { left: 20px; }
+    .carousel-arrow.next { right: 20px; }
+    .carousel-arrow:hover { background: rgba(255,255,255,0.3); }
+
+    /* Empty carousel state */
+    .carousel-empty {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100%; color: var(--color-text-muted); gap: 12px;
+    }
+    .carousel-empty .icon { font-size: 3rem; opacity: 0.4; }
+
+    /* ─── Main Layout ─── */
+    .main-layout {
+      max-width: 1340px; margin: 24px auto 0; padding: 0 24px;
+      display: grid;
+      grid-template-columns: 220px 1fr 280px;
+      gap: 24px; align-items: start;
+    }
+
+    /* ─── Category Sidebar ─── */
+    .cat-sidebar {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      position: sticky; top: 84px;
+      overflow: hidden;
+    }
+    .cat-sidebar-header {
+      padding: 16px 20px 12px;
+      font-family: var(--font-heading); font-size: 0.85rem;
+      font-weight: 600; letter-spacing: 0.03em;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+    }
+    .cat-sidebar .cat-parent {
+      border-bottom: 1px solid var(--color-border);
+    }
+    .cat-sidebar .cat-parent:last-child { border-bottom: none; }
+    .cat-sidebar .cat-parent-btn {
+      width: 100%; display: flex; align-items: center; gap: 10px;
+      padding: 13px 20px; border: none; background: none;
+      font-family: var(--font-body); font-size: 0.9rem; font-weight: 500;
+      color: var(--color-text); cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: var(--transition); text-align: left;
+    }
+    .cat-sidebar .cat-parent-btn:hover,
+    .cat-sidebar .cat-parent-btn.active {
+      background: var(--color-accent-light);
+      border-left-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+    .cat-sidebar .cat-parent-btn .count {
+      margin-left: auto; font-size: 0.75rem; color: var(--color-text-muted);
+      background: var(--color-bg); padding: 1px 8px; border-radius: 10px;
+    }
+    .cat-sidebar .cat-children {
+      padding: 0 20px 8px 44px; display: none;
+    }
+    .cat-sidebar .cat-parent-btn.active + .cat-children,
+    .cat-sidebar .cat-parent:has(.active) .cat-children { display: block; }
+    .cat-sidebar .cat-child-btn {
+      display: block; width: 100%; padding: 6px 0;
+      border: none; background: none;
+      font-family: var(--font-body); font-size: 0.82rem;
+      color: var(--color-text-secondary); cursor: pointer;
+      text-align: left; transition: var(--transition);
+    }
+    .cat-sidebar .cat-child-btn:hover,
+    .cat-sidebar .cat-child-btn.active { color: var(--color-accent); }
+    .cat-sidebar .cat-child-btn .count {
+      float: right; font-size: 0.7rem; color: var(--color-text-muted);
+    }
+
+    /* ─── Article Grid ─── */
+    .article-section { min-height: 400px; }
+    .article-section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .article-section-title {
+      font-family: var(--font-heading); font-size: 1.25rem; font-weight: 600;
+      color: var(--color-text);
+    }
+    .article-section-title span { color: var(--color-accent); }
+    .article-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .article-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      overflow: hidden; cursor: pointer;
+      transition: var(--transition);
+    }
+    .article-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .article-card .card-cover {
+      height: 180px; background-size: cover; background-position: center;
+      background-color: var(--color-overlay);
+    }
+    .article-card .card-cover-placeholder {
+      height: 180px; display: flex; align-items: center; justify-content: center;
+      background: var(--color-overlay); color: var(--color-text-muted);
+      font-size: 2.5rem;
+    }
+    .article-card .card-body { padding: 16px; }
+    .article-card .card-tags {
+      display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap;
+    }
+    .article-card .card-tag {
+      font-size: 0.7rem; font-weight: 500; padding: 2px 8px; border-radius: 4px;
+      background: var(--color-accent-light); color: var(--color-accent);
+    }
+    .article-card .card-tag.sub { background: var(--color-bg); color: var(--color-text-secondary); }
+    .article-card .card-title {
+      font-family: var(--font-heading); font-size: 1rem;
+      font-weight: 600; color: var(--color-text);
+      line-height: 1.4; margin-bottom: 8px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .article-card .card-meta {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 0.78rem; color: var(--color-text-muted);
+    }
+    .article-card .card-meta span { display: flex; align-items: center; gap: 4px; }
+
+    /* ─── Hot Articles ─── */
+    .hot-sidebar {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      position: sticky; top: 84px;
+    }
+    .hot-sidebar-header {
+      padding: 16px 20px 12px;
+      font-family: var(--font-heading); font-size: 0.85rem;
+      font-weight: 600; letter-spacing: 0.03em;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .hot-list { padding: 8px; }
+    .hot-item { display: flex; gap: 12px; padding: 10px 12px; border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); text-decoration: none; color: inherit; }
+    .hot-item:hover { background: var(--color-overlay); }
+    .hot-item .hot-rank {
+      font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700;
+      width: 28px; flex-shrink: 0; text-align: center;
+      color: var(--color-text-muted);
+    }
+    .hot-item:nth-child(1) .hot-rank { color: #e74c3c; }
+    .hot-item:nth-child(2) .hot-rank { color: #e67e22; }
+    .hot-item:nth-child(3) .hot-rank { color: #f1c40f; }
+    .hot-item .hot-info { min-width: 0; }
+    .hot-item .hot-title {
+      font-size: 0.85rem; font-weight: 500; color: var(--color-text);
+      line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .hot-item .hot-views {
+      font-size: 0.7rem; color: var(--color-text-muted); margin-top: 4px;
+    }
+
+    /* ─── Loading & Empty States ─── */
+    .loading-skeleton {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .skeleton-card {
+      background: var(--color-surface); border: 1px solid var(--color-border);
+      border-radius: var(--radius-md); overflow: hidden;
+    }
+    .skeleton-card .sk-cover { height: 180px; background: var(--color-overlay); animation: shimmer 1.5s infinite; }
+    .skeleton-card .sk-body { padding: 16px; }
+    .skeleton-card .sk-line { height: 12px; background: var(--color-overlay); border-radius: 4px; margin-bottom: 8px; animation: shimmer 1.5s infinite; }
+    .skeleton-card .sk-line.short { width: 60%; }
+    @keyframes shimmer {
+      0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; }
+    }
+    .empty-state {
+      text-align: center; padding: 80px 20px; color: var(--color-text-muted);
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+    .empty-state p { font-size: 0.95rem; }
+
+    /* ─── Pagination ─── */
+    .pagination {
+      display: flex; justify-content: center; align-items: center;
+      gap: 8px; margin-top: 32px; padding-bottom: 32px;
+    }
+    .pagination button {
+      width: 36px; height: 36px; border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      color: var(--color-text-secondary);
+      font-family: var(--font-body); font-size: 0.85rem;
+      cursor: pointer; transition: var(--transition);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pagination button:hover:not(:disabled) { border-color: var(--color-accent); color: var(--color-accent); }
+    .pagination button.active { background: var(--color-accent); color: #fff; border-color: var(--color-accent); }
+    .pagination button:disabled { opacity: 0.3; cursor: not-allowed; }
+    .pagination .page-info { font-size: 0.82rem; color: var(--color-text-muted); padding: 0 8px; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 1100px) {
+      .main-layout { grid-template-columns: 200px 1fr; }
+      .hot-sidebar { display: none; }
+    }
+    @media (max-width: 768px) {
+      .main-layout { grid-template-columns: 1fr; }
+      .cat-sidebar { position: static; }
+      .carousel { height: 280px; }
+      .carousel-slide .slide-content { padding: 24px 28px; }
+      .carousel-slide .slide-title { font-size: 1.3rem; }
+      .navbar-inner { gap: 12px; }
+      .navbar-search { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ Top Navbar ═══ -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="news.html" class="navbar-logo">
+      <span class="dot"></span>NewsHub
+    </a>
+    <div class="navbar-search">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="搜索新闻..." onkeydown="if(event.key==='Enter')doSearch()">
+    </div>
+    <div class="navbar-actions">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="切换主题">🌙</button>
+      <a href="login.html" class="btn-login">进入后台</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ Hero Carousel ═══ -->
+<section class="hero">
+  <div class="carousel" id="carousel">
+    <div class="carousel-track" id="carouselTrack"></div>
+    <div class="carousel-indicators" id="carouselIndicators"></div>
+    <button class="carousel-arrow prev" onclick="prevSlide()">‹</button>
+    <button class="carousel-arrow next" onclick="nextSlide()">›</button>
+  </div>
+</section>
+
+<!-- ═══ Main Layout ═══ -->
+<div class="main-layout">
+
+  <!-- Category Sidebar -->
+  <aside class="cat-sidebar" id="catSidebar">
+    <div class="cat-sidebar-header">新闻分类</div>
+    <div id="catTree"></div>
+  </aside>
+
+  <!-- Article Grid -->
+  <main class="article-section" id="articleSection">
+    <div class="article-section-header">
+      <h2 class="article-section-title" id="sectionTitle">📰 <span>全部文章</span></h2>
+    </div>
+    <div class="article-grid" id="articleGrid"></div>
+    <div class="pagination" id="pagination"></div>
+  </main>
+
+  <!-- Hot Articles -->
+  <aside class="hot-sidebar" id="hotSidebar">
+    <div class="hot-sidebar-header">🔥 热门文章</div>
+    <div class="hot-list" id="hotList"></div>
+  </aside>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  State
+// ═══════════════════════════════════════════
+const API = '/api';
+const state = {
+  categories: [],
+  featuredArticles: [],
+  hotArticles: [],
+  articles: [],
+  currentCategory: null,       // category name for API
+  currentCategoryId: null,    // category id for UI
+  currentSubCategory: null,
+  currentPage: 1,
+  totalPages: 1,
+  limit: 12,
+  carouselIndex: 0,
+  carouselTimer: null
+};
+
+// ═══════════════════════════════════════════
+//  Init
+// ═══════════════════════════════════════════
+(async function init() {
+  setupTheme();
+  await Promise.all([
+    loadCategories(),
+    loadFeatured(),
+    loadHot(),
+    loadArticles()
+  ]);
+})();
+
+// ═══════════════════════════════════════════
+//  Theme
+// ═══════════════════════════════════════════
+function setupTheme() {
+  const saved = localStorage.getItem('newshub-theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  updateThemeToggle(saved);
+}
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('newshub-theme', next);
+  updateThemeToggle(next);
+}
+function updateThemeToggle(theme) {
+  document.getElementById('themeToggle').textContent = theme === 'light' ? '🌙' : '☀️';
+}
+
+// ═══════════════════════════════════════════
+//  API Helpers
+// ═══════════════════════════════════════════
+async function apiFetch(path) {
+  try {
+    const res = await fetch(API + path);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (e) {
+    console.error('API error:', path, e);
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════
+//  Categories
+// ═══════════════════════════════════════════
+async function loadCategories() {
+  const res = await apiFetch('/categories/tree');
+  state.categories = res?.data || [];
+  renderCategoryTree();
+}
+
+function renderCategoryTree() {
+  const container = document.getElementById('catTree');
+  const cats = state.categories;
+
+  // "All" button
+  let html = `
+    <div class="cat-parent">
+      <button class="cat-parent-btn ${!state.currentCategory ? 'active' : ''}" onclick="selectCategory(null,null,null)">
+        📋 全部文章
+        <span class="count">${cats.reduce((s,c) => s + (c.count||0), 0)}</span>
+      </button>
+    </div>`;
+
+  cats.forEach(cat => {
+    const isActive = state.currentCategory === cat.name && !state.currentSubCategory;
+    html += `
+    <div class="cat-parent">
+      <button class="cat-parent-btn ${isActive ? 'active' : ''}" onclick="selectCategory(${cat.id},'${escapeJs(cat.name)}',null)">
+        ${cat.icon || '📁'} ${escapeHtml(cat.name)}
+        <span class="count">${cat.count || 0}</span>
+      </button>
+      <div class="cat-children">`;
+
+    if (cat.children && cat.children.length > 0) {
+      cat.children.forEach(sub => {
+        const subActive = state.currentCategory === cat.name && state.currentSubCategory === sub.name;
+        html += `
+        <button class="cat-child-btn ${subActive ? 'active' : ''}" onclick="event.stopPropagation();selectCategory(${cat.id},'${escapeJs(cat.name)}','${escapeJs(sub.name)}')">
+          ${escapeHtml(sub.name)}
+          <span class="count">${sub.count || 0}</span>
+        </button>`;
+      });
+    }
+
+    html += `</div></div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function selectCategory(catId, catName, subCat) {
+  state.currentCategory = catName;
+  state.currentCategoryId = catId;
+  state.currentSubCategory = subCat;
+  state.currentPage = 1;
+
+  // Update active states
+  document.querySelectorAll('.cat-parent-btn, .cat-child-btn').forEach(b => b.classList.remove('active'));
+
+  if (catId === null) {
+    document.querySelector('.cat-parent-btn')?.classList.add('active');
+  }
+
+  // Update section title
+  if (!catName) {
+    document.getElementById('sectionTitle').innerHTML = '📰 <span>全部文章</span>';
+  } else if (subCat) {
+    document.getElementById('sectionTitle').innerHTML = '📰 <span>' + escapeHtml(subCat) + '</span>';
+  } else {
+    document.getElementById('sectionTitle').innerHTML = '📰 <span>' + escapeHtml(catName) + '</span>';
+  }
+
+  loadArticles();
+}
+
+// ═══════════════════════════════════════════
+//  Featured / Carousel
+// ═══════════════════════════════════════════
+async function loadFeatured() {
+  const res = await apiFetch('/articles/featured');
+  state.featuredArticles = res?.data || [];
+  renderCarousel();
+}
+
+function renderCarousel() {
+  const track = document.getElementById('carouselTrack');
+  const indicators = document.getElementById('carouselIndicators');
+  const articles = state.featuredArticles;
+
+  if (articles.length === 0) {
+    track.innerHTML = `<div class="carousel-empty"><div class="icon">📰</div><p>暂无精选文章</p></div>`;
+    indicators.innerHTML = '';
+    return;
+  }
+
+  state.carouselIndex = 0;
+  track.innerHTML = articles.map((a, i) => `
+    <div class="carousel-slide" onclick="window.location.href='article.html?id=${a.id}'" style="cursor:pointer">
+      ${a.cover_url ? `<div class="slide-bg" style="background-image:url('${a.cover_url}')"></div>` : ''}
+      <div class="slide-content">
+        <span class="slide-category">${escapeHtml(a.category || '')}${a.sub_category ? ' · ' + escapeHtml(a.sub_category) : ''}</span>
+        <h2 class="slide-title">${escapeHtml(a.title)}</h2>
+        <div class="slide-meta">
+          <span>✍ ${escapeHtml(a.author || 'NewsHub')}</span>
+          <span>👁 ${formatNum(a.views)}</span>
+          <span>💬 ${a.comments_count || 0}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  indicators.innerHTML = articles.map((_, i) =>
+    `<button class="${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></button>`
+  ).join('');
+
+  startCarousel();
+}
+
+function startCarousel() {
+  clearInterval(state.carouselTimer);
+  if (state.featuredArticles.length <= 1) return;
+  state.carouselTimer = setInterval(nextSlide, 5000);
+}
+
+function goToSlide(index) {
+  state.carouselIndex = index;
+  const track = document.getElementById('carouselTrack');
+  track.style.transform = `translateX(-${index * 100}%)`;
+  document.querySelectorAll('.carousel-indicators button').forEach((b, i) => {
+    b.classList.toggle('active', i === index);
+  });
+  startCarousel();
+}
+
+function prevSlide() {
+  const len = state.featuredArticles.length;
+  const idx = (state.carouselIndex - 1 + len) % len;
+  goToSlide(idx);
+}
+
+function nextSlide() {
+  const len = state.featuredArticles.length;
+  const idx = (state.carouselIndex + 1) % len;
+  goToSlide(idx);
+}
+
+// ═══════════════════════════════════════════
+//  Hot Articles
+// ═══════════════════════════════════════════
+async function loadHot() {
+  const res = await apiFetch('/articles/hot');
+  state.hotArticles = res?.data || [];
+  renderHot();
+}
+
+function renderHot() {
+  const container = document.getElementById('hotList');
+  if (state.hotArticles.length === 0) {
+    container.innerHTML = '<div style="padding:24px;text-align:center;color:var(--color-text-muted)">暂无热门</div>';
+    return;
+  }
+  container.innerHTML = state.hotArticles.map((a, i) => `
+    <div class="hot-item" onclick="window.location.href='article.html?id=${a.id}'" style="cursor:pointer">
+      <div class="hot-rank">${String(i + 1).padStart(2, '0')}</div>
+      <div class="hot-info">
+        <div class="hot-title">${escapeHtml(a.title)}</div>
+        <div class="hot-views">👁 ${formatNum(a.views)} 阅读</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════
+//  Article List
+// ═══════════════════════════════════════════
+async function loadArticles() {
+  const grid = document.getElementById('articleGrid');
+  grid.innerHTML = buildSkeletonHTML();
+
+  let url = `/articles?public=1&page=${state.currentPage}&limit=${state.limit}`;
+  if (state.currentCategory) url += `&category=${encodeURIComponent(state.currentCategory)}`;
+  if (state.currentSubCategory) url += `&sub_category=${encodeURIComponent(state.currentSubCategory)}`;
+
+  const res = await apiFetch(url);
+
+  if (!res || !res.articles) {
+    grid.innerHTML = '<div class="empty-state"><div class="icon">😕</div><p>加载失败，请稍后重试</p></div>';
+    return;
+  }
+
+  state.articles = res.articles;
+  state.totalPages = Math.ceil((res.total || 0) / state.limit);
+
+  if (state.articles.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>该分类下暂无文章</p></div>';
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  grid.innerHTML = state.articles.map(a => `
+    <article class="article-card" onclick="window.location.href='article.html?id=${a.id}'" style="cursor:pointer">
+      ${a.cover_url
+        ? `<div class="card-cover" style="background-image:url('${a.cover_url}')"></div>`
+        : `<div class="card-cover-placeholder">📄</div>`
+      }
+      <div class="card-body">
+        <div class="card-tags">
+          <span class="card-tag">${escapeHtml(a.category)}</span>
+          ${a.sub_category ? `<span class="card-tag sub">${escapeHtml(a.sub_category)}</span>` : ''}
+        </div>
+        <h3 class="card-title">${escapeHtml(a.title)}</h3>
+        <div class="card-meta">
+          <span>✍ ${escapeHtml(a.author || 'NewsHub')}</span>
+          <span>👁 ${formatNum(a.views)}</span>
+          <span>💬 ${a.comments_count || 0}</span>
+          <span>${formatDate(a.created_at)}</span>
+        </div>
+      </div>
+    </article>
+  `).join('');
+
+  renderPagination();
+}
+
+function renderPagination() {
+  const container = document.getElementById('pagination');
+  if (state.totalPages <= 1) { container.innerHTML = ''; return; }
+
+  let html = '';
+  html += `<button ${state.currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${state.currentPage - 1})">‹</button>`;
+
+  for (let p = 1; p <= state.totalPages; p++) {
+    if (p === 1 || p === state.totalPages || (p >= state.currentPage - 2 && p <= state.currentPage + 2)) {
+      html += `<button class="${p === state.currentPage ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`;
+    } else if (p === 2 || p === state.totalPages - 1) {
+      html += '<span class="page-info">…</span>';
+    }
+  }
+
+  html += `<button ${state.currentPage === state.totalPages ? 'disabled' : ''} onclick="goToPage(${state.currentPage + 1})">›</button>`;
+  container.innerHTML = html;
+}
+
+function goToPage(page) {
+  state.currentPage = page;
+  document.getElementById('articleGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  loadArticles();
+}
+
+function doSearch() {
+  // Simple search redirect — can be enhanced later
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  // For now, search isn't implemented on backend; just reset and show all
+  state.currentCategory = null;
+  state.currentSubCategory = null;
+  state.currentPage = 1;
+  document.getElementById('searchInput').value = '';
+  selectCategory(null, null, null);
+}
+
+// ═══════════════════════════════════════════
+//  Skeletons
+// ═══════════════════════════════════════════
+function buildSkeletonHTML() {
+  let html = '<div class="loading-skeleton">';
+  for (let i = 0; i < 6; i++) {
+    html += `
+    <div class="skeleton-card">
+      <div class="sk-cover"></div>
+      <div class="sk-body">
+        <div class="sk-line"></div>
+        <div class="sk-line short"></div>
+      </div>
+    </div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+// ═══════════════════════════════════════════
+//  Utilities
+// ═══════════════════════════════════════════
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function escapeJs(str) {
+  return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
+
+function formatNum(n) {
+  if (!n) return '0';
+  if (n >= 10000) return (n / 10000).toFixed(1) + '万';
+  return n.toLocaleString();
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  const now = new Date();
+  const diff = now - dt;
+  if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
+  if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
+  if (diff < 604800000) return Math.floor(diff / 86400000) + '天前';
+  return dt.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+}
+</script>
+</body>
+</html>

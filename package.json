@@ -1,15 +1,10 @@
 {
   "name": "newshub-admin",
   "version": "1.0.0",
-  "description": "NewsHub Admin Backend — 新闻平台后台管理系统",
-  "main": "server.js",
+  "description": "NewsHub 新闻平台后台管理系统 — 前后端分离架构",
+  "private": true,
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
-  },
-  "dependencies": {
-    "better-sqlite3": "^11.7.0",
-    "cors": "^2.8.6",
-    "express": "^4.22.2"
+    "backend": "cd backend && node server.js",
+    "frontend": "npx http-server frontend -p 5500 -c-1"
   }
 }

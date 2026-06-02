@@ -1,7 +1,7 @@
 # Dependencies
 node_modules/
 
-# Database files (contains real data)
+# Database files
 *.db
 *.db-shm
 *.db-wal
@@ -9,10 +9,6 @@ node_modules/
 
 # Logs
 *.log
-out.log
-err.log
-server-output.log
-server-error.log
 
 # Environment & secrets
 .env

@@ -333,6 +333,9 @@ body {
 </div>
 
 <script>
+// ============ CONFIG ============
+const API_BASE = '';  // 同源 Nginx 代理，无需跨域
+
 // ============ DOM refs ============
 const $username = document.getElementById('username');
 const $password = document.getElementById('password');
@@ -385,7 +388,7 @@ async function fetchCaptcha() {
     $captchaImg.alt = '加载中...';
     hideError();
 
-    const res = await fetch('/api/auth/captcha');
+    const res = await fetch(API_BASE + '/api/auth/captcha');
     if (!res.ok) throw new Error('服务器响应异常 (' + res.status + ')');
 
     const json = await res.json();
@@ -424,7 +427,7 @@ async function doLogin() {
   setLoading(true);
 
   try {
-    const res = await fetch('/api/auth/login', {
+    const res = await fetch(API_BASE + '/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password, captchaId: _captchaId, captchaAnswer })
@@ -434,8 +437,9 @@ async function doLogin() {
       await fetchCaptcha(); // refresh captcha on failure
       throw new Error(json.message);
     }
-    // Success — redirect
-    window.location.href = '/admin-dashboard.html';
+    // Store token & redirect
+    localStorage.setItem('auth_token', json.data.token);
+    window.location.href = 'admin-dashboard.html';
   } catch (e) {
     showError(e.message || '登录失败，请重试');
     setLoading(false);
@@ -456,12 +460,15 @@ $btnLogin.addEventListener('click', doLogin);
 
 // ============ Check existing session ============
 async function checkSession() {
+  const token = localStorage.getItem('auth_token');
+  if (!token) { $loadingOverlay.classList.add('hide'); return; }
   try {
-    const res = await fetch('/api/auth/check');
+    const res = await fetch(API_BASE + '/api/auth/check', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
     const json = await res.json();
     if (json.success) {
-      // Already logged in — redirect to dashboard
-      window.location.href = '/admin-dashboard.html';
+      window.location.href = 'admin-dashboard.html';
       return;
     }
   } catch (_) { /* not logged in, stay */ }
@@ -469,9 +476,9 @@ async function checkSession() {
 }
 
 // ============ Init ============
-// Warn if accessed via file:// instead of http://localhost:3460
+// Warn if accessed via file:// instead of http://
 if (window.location.protocol === 'file:') {
-  document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100dvh;font-family:system-ui,sans-serif;color:#2d2b28;background:#f5f4f0;text-align:center;padding:20px;"><div><h2 style="color:#c7512e;margin-bottom:12px;">访问方式错误</h2><p style="color:#6b6560;">请通过以下地址访问登录页面：</p><p style="font-size:18px;font-weight:600;color:#c7512e;margin:16px 0;">http://localhost:3460/login.html</p><p style="font-size:13px;color:#9c938a;">不要直接双击打开 HTML 文件</p></div></div>';
+  document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100dvh;font-family:system-ui,sans-serif;color:#2d2b28;background:#f5f4f0;text-align:center;padding:20px;"><div><h2 style="color:#c7512e;margin-bottom:12px;">访问方式错误</h2><p style="color:#6b6560;">请通过 HTTP 服务器访问前端页面，例如：</p><p style="font-size:18px;font-weight:600;color:#c7512e;margin:16px 0;">Live Server 或 npx http-server</p><p style="font-size:13px;color:#9c938a;">不要直接双击打开 HTML 文件</p></div></div>';
 } else {
   fetchCaptcha();
   checkSession();

@@ -74,6 +74,92 @@ body {
   top: 0; left: 0; bottom: 0;
   z-index: 100;
   overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 280ms cubic-bezier(0.16, 1, 0.3, 1), min-width 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sidebar.collapsed {
+  width: 64px;
+  min-width: 64px;
+}
+.sidebar.collapsed .sidebar-brand-text,
+.sidebar.collapsed .nav-item span:not(.nav-badge),
+.sidebar.collapsed .nav-item > svg.nav-arrow,
+.sidebar.collapsed .sidebar-user-info,
+.sidebar.collapsed .sidebar-footer .topbar-btn,
+.sidebar.collapsed .nav-sub { display: none; }
+.sidebar.collapsed .sidebar-brand {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 18px 0 14px 0;
+  gap: 10px;
+}
+.sidebar.collapsed .sidebar-footer { justify-content: center; padding: 16px 0; }
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 10px 0;
+}
+.sidebar.collapsed .nav-item svg { opacity: 0.8; }
+.sidebar.collapsed .nav-item.active::before { display: none; }
+.sidebar.collapsed .nav-item.active::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 8px; bottom: 8px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+}
+.sidebar.collapsed .nav-badge {
+  position: absolute;
+  top: 4px; right: 4px;
+  font-size: 10px;
+  padding: 1px 5px;
+  min-width: 16px;
+}
+.sidebar.collapsed .nav-group > .nav-item { padding-right: 0; }
+.sidebar.collapsed .nav-group:hover .nav-sub {
+  max-height: 300px;
+  position: absolute;
+  left: 64px;
+  top: 0;
+  background: var(--bg-sidebar);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: 4px 8px;
+  min-width: 160px;
+  box-shadow: 4px 4px 16px rgba(0,0,0,0.3);
+}
+.sidebar.collapsed .nav-group { position: relative; }
+
+/* Collapse toggle button */
+.sidebar-collapse-btn {
+  margin-left: auto;
+  width: 28px; height: 28px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-sidebar);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  z-index: 10;
+  padding: 0;
+  flex-shrink: 0;
+}
+.sidebar-collapse-btn:hover {
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+}
+.sidebar-collapse-btn svg {
+  width: 14px; height: 14px;
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sidebar.collapsed .sidebar-collapse-btn {
+  margin-left: 0;
+}
+.sidebar.collapsed .sidebar-collapse-btn svg {
+  transform: rotate(180deg);
 }
 .sidebar-brand {
   padding: 20px 22px;
@@ -204,7 +290,9 @@ body {
 .sidebar-user-role { font-size: 11px; color: var(--text-sidebar); }
 
 /* ============ MAIN ============ */
-.main { flex: 1; margin-left: var(--sidebar-w); display: flex; flex-direction: column; min-height: 100dvh; }
+.main { flex: 1; margin-left: var(--sidebar-w); display: flex; flex-direction: column; min-height: 100dvh; transition: margin-left 280ms cubic-bezier(0.16, 1, 0.3, 1); }
+.sidebar.collapsed ~ .main,
+.sidebar.collapsed + .main { margin-left: 64px; }
 
 /* Top Bar */
 .topbar {
@@ -289,7 +377,7 @@ body {
 .content { flex: 1; padding: 28px; overflow-y: auto; }
 
 /* ============ PAGE HEADER ============ */
-.page-header { margin-bottom: 28px; }
+.page-header { margin-bottom: 28px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
 .page-title {
   font-family: var(--font-display);
   font-size: 26px;
@@ -616,30 +704,73 @@ tbody tr:last-child td { border-bottom: none; }
 .skeleton-stat { height: 90px; border-radius: var(--radius-lg); }
 .skeleton-chart { height: 280px; border-radius: var(--radius-lg); }
 
-/* ============ CATEGORY CARDS ============ */
-.cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
-.cat-card {
+/* ============ CATEGORY TREE ============ */
+.cat-group {
   background: var(--bg-card);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
   padding: 20px;
+  margin-bottom: 14px;
+  transition: all var(--transition);
+}
+.cat-group-header {
   display: flex;
   align-items: center;
-  gap: 14px;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+.cat-group-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+}
+.cat-group-actions {
+  display: flex;
+  gap: 6px;
+}
+.cat-sub-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.cat-sub-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px 6px 6px;
+  font-size: 13px;
   transition: all var(--transition);
-  cursor: pointer;
 }
-.cat-card:hover { border-color: var(--border-light); box-shadow: var(--shadow-md); }
-.cat-card-icon {
-  width: 44px; height: 44px;
-  border-radius: var(--radius-md);
-  display: flex; align-items: center; justify-content: center;
+.cat-sub-item:hover { border-color: var(--accent); }
+.cat-sub-icon {
+  width: 26px; height: 26px;
+  border-radius: var(--radius-sm);
+  display: inline-flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  font-size: 20px;
 }
-.cat-card-info { flex: 1; min-width: 0; }
-.cat-card-name { font-weight: 600; font-size: 15px; }
-.cat-card-count { font-size: 12px; color: var(--text-tertiary); margin-top: 3px; }
+.cat-sub-name { font-weight: 500; }
+.cat-sub-count { color: var(--text-tertiary); font-size: 11px; }
+.cat-sub-actions { display: flex; gap: 2px; margin-left: 4px; }
+.cat-add-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: 1px dashed var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.cat-add-sub:hover { background: var(--accent-soft); }
 
 /* ============ MEDIA GRID ============ */
 .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
@@ -790,6 +921,9 @@ tbody tr:last-child td { border-bottom: none; }
   <div class="sidebar-brand">
     <div class="sidebar-brand-icon">N</div>
     <span class="sidebar-brand-text">NewsHub</span>
+    <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="折叠/展开侧边栏">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 4 10 8 6 12"/></svg>
+    </button>
   </div>
   <nav class="sidebar-nav">
     <!-- 工作台 -->
@@ -1129,10 +1263,13 @@ tbody tr:last-child td { border-bottom: none; }
     <!-- ========== CATEGORIES PAGE ========== -->
     <div class="page" id="page-categories">
       <div class="page-header">
-        <h1 class="page-title">分类管理</h1>
-        <p class="page-subtitle">管理新闻内容分类体系，创建和编辑内容栏目。</p>
+        <div>
+          <h1 class="page-title">分类管理</h1>
+          <p class="page-subtitle">管理新闻内容分类体系，支持一级分类和二级子分类。</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCategoryModal()">+ 新建一级分类</button>
       </div>
-      <div class="cat-grid" id="categoriesGrid"></div>
+      <div id="categoriesTree"></div>
     </div>
 
     <!-- ========== MEDIA PAGE ========== -->
@@ -1333,6 +1470,42 @@ tbody tr:last-child td { border-bottom: none; }
   </div>
 </div>
 
+<!-- Category Modal -->
+<div class="modal-overlay" id="categoryModal">
+  <div class="modal-card" style="max-width:420px;">
+    <div class="modal-header">
+      <span class="modal-title" id="catModalTitle">新建分类</span>
+      <button class="modal-close" onclick="closeCategoryModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">分类名称 *</label>
+        <input class="form-input" id="catName" placeholder="输入分类名称..." maxlength="20">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">图标 (emoji)</label>
+          <input class="form-input" id="catIcon" placeholder="📄" maxlength="4" style="font-size:18px;text-align:center;">
+        </div>
+        <div class="form-group">
+          <label class="form-label">颜色</label>
+          <input class="form-input" type="color" id="catColor" value="#c7512e" style="padding:4px;height:38px;cursor:pointer;">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">父分类（留空为一级分类）</label>
+        <select class="form-select" id="catParentId">
+          <option value="">— 无（一级分类）—</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeCategoryModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveCategory()">保存分类</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -1340,37 +1513,50 @@ tbody tr:last-child td { border-bottom: none; }
 // ============ DATA ============
 // ============ API CLIENT ============
 const API = {
-  base: '/api',
+  base: '/api',  // 同源 Nginx 代理
+  _token() { return localStorage.getItem('auth_token'); },
   async _handleError(res, text) {
-    if (res.status === 401) { window.location.href = '/login.html'; throw new Error('登录已过期，请重新登录'); }
+    if (res.status === 401) { localStorage.removeItem('auth_token'); window.location.href = 'login.html'; throw new Error('登录已过期，请重新登录'); }
     let json;
     try { json = JSON.parse(text); } catch { throw new Error('服务器响应异常 (HTTP ' + res.status + ')'); }
     throw new Error(json.message || ('请求失败 (HTTP ' + res.status + ')'));
   },
   async get(path) {
-    const res = await fetch(this.base + path);
+    const headers = {};
+    const t = this._token();
+    if (t) headers['Authorization'] = 'Bearer ' + t;
+    const res = await fetch(this.base + path, { headers });
     const text = await res.text();
     if (!res.ok) return this._handleError(res, text);
     return JSON.parse(text).data;
   },
   async post(path, body) {
+    const headers = { 'Content-Type': 'application/json' };
+    const t = this._token();
+    if (t) headers['Authorization'] = 'Bearer ' + t;
     const res = await fetch(this.base + path, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+      method: 'POST', headers, body: JSON.stringify(body)
     });
     const text = await res.text();
     if (!res.ok) return this._handleError(res, text);
     return JSON.parse(text);
   },
   async put(path, body) {
+    const headers = { 'Content-Type': 'application/json' };
+    const t = this._token();
+    if (t) headers['Authorization'] = 'Bearer ' + t;
     const res = await fetch(this.base + path, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+      method: 'PUT', headers, body: JSON.stringify(body)
     });
     const text = await res.text();
     if (!res.ok) return this._handleError(res, text);
     return JSON.parse(text);
   },
   async del(path) {
-    const res = await fetch(this.base + path, { method: 'DELETE' });
+    const headers = {};
+    const t = this._token();
+    if (t) headers['Authorization'] = 'Bearer ' + t;
+    const res = await fetch(this.base + path, { method: 'DELETE', headers });
     const text = await res.text();
     if (!res.ok) return this._handleError(res, text);
     return JSON.parse(text);
@@ -1574,17 +1760,22 @@ function statusBadge(status) {
 
 async function initDashboard() {
   // Auth check — redirect to login if not authenticated
+  const token = localStorage.getItem('auth_token');
+  if (!token) { window.location.href = 'login.html'; return; }
+
   let username = 'admin';
   try {
-    const res = await fetch('/api/auth/check');
+    const res = await fetch(API.base + '/auth/check', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
     const json = await res.json();
-    if (!json.success) { window.location.href = '/login.html'; return; }
+    if (!json.success) { localStorage.removeItem('auth_token'); window.location.href = 'login.html'; return; }
     username = json.data.username;
     _currentUser = username;
     // Update sidebar footer with username
     const userEl = document.querySelector('.sidebar-user-name');
     if (userEl) userEl.textContent = username;
-  } catch (_) { window.location.href = '/login.html'; return; }
+  } catch (_) { window.location.href = 'login.html'; return; }
 
   // Set dynamic subtitle
   const subtitleEl = document.getElementById('dashboardSubtitle');
@@ -1597,10 +1788,15 @@ async function initDashboard() {
 }
 
 async function handleLogout() {
+  const token = localStorage.getItem('auth_token');
   try {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    await fetch(API.base + '/auth/logout', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + (token || '') }
+    });
   } catch (_) {}
-  window.location.href = '/login.html';
+  localStorage.removeItem('auth_token');
+  window.location.href = 'login.html';
 }
 
 async function renderTrafficChart() {
@@ -1722,22 +1918,93 @@ async function deleteArticle(id) {
 
 // ============ CATEGORIES ============
 async function renderCategories() {
-  const grid = document.getElementById('categoriesGrid');
-  if (!grid) return;
-  let cats = _categories;
-  if (!cats.length) {
-    try { cats = await API.get('/categories'); _categories = cats; } catch (e) {}
-  }
-  if (!cats.length) { grid.innerHTML = '<p style="color:var(--text-tertiary);">暂无分类数据</p>'; return; }
-  grid.innerHTML = cats.map(c => `
-    <div class="cat-card">
-      <div class="cat-card-icon" style="background:${c.color}15;">${c.icon}</div>
-      <div class="cat-card-info">
-        <div class="cat-card-name">${c.name}</div>
-        <div class="cat-card-count">${c.count} 篇文章</div>
+  const container = document.getElementById('categoriesTree');
+  if (!container) return;
+  let tree = [];
+  try { tree = await API.get('/categories/tree'); } catch (e) {}
+  if (!tree.length) { container.innerHTML = '<p style="color:var(--text-tertiary);padding:32px;text-align:center;">暂无分类数据</p>'; return; }
+
+  container.innerHTML = tree.map(c => {
+    const children = c.children || [];
+    return `
+    <div class="cat-group">
+      <div class="cat-group-header">
+        <div class="cat-group-title">
+          <span style="font-size:20px;">${c.icon}</span>
+          <span style="font-weight:600;">${c.name}</span>
+          <span style="color:var(--text-tertiary);font-size:13px;">${c.count} 篇文章</span>
+        </div>
+        <div class="cat-group-actions">
+          <button class="btn btn-ghost btn-sm" onclick="openCategoryModal(${c.id},'${c.name}','${c.color}','${c.icon}')">编辑</button>
+          <button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="deleteCategory(${c.id},'${c.name}')">删除</button>
+        </div>
+      </div>
+      <div class="cat-sub-list">
+        ${children.map(ch => `
+          <div class="cat-sub-item">
+            <span class="cat-sub-icon" style="background:${ch.color}15;color:${ch.color};font-size:14px;">${ch.icon}</span>
+            <span class="cat-sub-name">${ch.name}</span>
+            <span class="cat-sub-count">${ch.count} 篇</span>
+            <div class="cat-sub-actions">
+              <button class="btn btn-ghost btn-xs" onclick="openCategoryModal(${ch.id},'${ch.name}','${ch.color}','${ch.icon}',${ch.parent_id})">编辑</button>
+              <button class="btn btn-ghost btn-xs" style="color:var(--danger);" onclick="deleteCategory(${ch.id},'${ch.name}')">删除</button>
+            </div>
+          </div>
+        `).join('')}
+        <button class="cat-add-sub" onclick="openCategoryModal(null,'','','',${c.id})">+ 添加子分类</button>
       </div>
     </div>
-  `).join('');
+    `;
+  }).join('');
+}
+
+// Category modal
+let _editingCategoryId = null;
+async function openCategoryModal(id, name, color, icon, parentId) {
+  _editingCategoryId = id || null;
+  document.getElementById('catModalTitle').textContent = id ? '编辑分类' : '新建分类';
+  document.getElementById('catName').value = name || '';
+  document.getElementById('catColor').value = color || '#c7512e';
+  document.getElementById('catIcon').value = icon || '📄';
+  // Populate parent select
+  const parentSelect = document.getElementById('catParentId');
+  try {
+    const tree = await API.get('/categories/tree');
+    parentSelect.innerHTML = '<option value="">— 无（一级分类）—</option>' +
+      tree.map(c => `<option value="${c.id}" ${c.id === parentId ? 'selected' : ''}>${c.name}</option>`).join('');
+  } catch (e) { parentSelect.innerHTML = '<option value="">— 无（一级分类）—</option>'; }
+  if (parentId) parentSelect.value = parentId;
+  document.getElementById('categoryModal').classList.add('open');
+}
+function closeCategoryModal() {
+  document.getElementById('categoryModal').classList.remove('open');
+  _editingCategoryId = null;
+}
+async function saveCategory() {
+  const name = document.getElementById('catName').value.trim();
+  const color = document.getElementById('catColor').value;
+  const icon = document.getElementById('catIcon').value;
+  const parentId = document.getElementById('catParentId').value;
+  if (!name) { showToast('分类名称不能为空', 'error'); return; }
+  try {
+    if (_editingCategoryId) {
+      await API.put('/categories/' + _editingCategoryId, { name, color, icon, parent_id: parentId ? Number(parentId) : null });
+      showToast('分类已更新', 'success');
+    } else {
+      await API.post('/categories', { name, color, icon, parent_id: parentId ? Number(parentId) : null });
+      showToast('分类创建成功', 'success');
+    }
+    closeCategoryModal();
+    renderCategories();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+async function deleteCategory(id, name) {
+  if (!confirm(`确定要删除分类「${name}」吗？\n\n删除后，其下的子分类将变为一级分类。`)) return;
+  try {
+    await API.del('/categories/' + id);
+    showToast('分类已删除', 'success');
+    renderCategories();
+  } catch (e) { showToast(e.message, 'error'); }
 }
 
 // ============ MEDIA ============
@@ -1972,6 +2239,9 @@ document.getElementById('commentFilterStatus')?.addEventListener('change', async
 document.getElementById('articleModal').addEventListener('click', function(e) {
   if (e.target === this) closeArticleModal();
 });
+document.getElementById('categoryModal').addEventListener('click', function(e) {
+  if (e.target === this) closeCategoryModal();
+});
 
 // ============ KEYBOARD SHORTCUTS ============
 document.addEventListener('keydown', function(e) {
@@ -1990,6 +2260,26 @@ document.addEventListener('DOMContentLoaded', function() {
     menuBtn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
   });
 });
+
+// ============ SIDEBAR COLLAPSE ============
+(function() {
+  const sidebar = document.getElementById('sidebar');
+  const btn = document.getElementById('sidebarCollapseBtn');
+
+  // Restore state from localStorage
+  const savedState = localStorage.getItem('sidebar_collapsed');
+  if (savedState === 'true') {
+    sidebar.classList.add('collapsed');
+  }
+
+  if (btn) {
+    btn.addEventListener('click', function() {
+      sidebar.classList.toggle('collapsed');
+      const isCollapsed = sidebar.classList.contains('collapsed');
+      localStorage.setItem('sidebar_collapsed', isCollapsed);
+    });
+  }
+})();
 
 // ============ INIT ============
 initDashboard();
